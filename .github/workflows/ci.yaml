@@ -1,37 +1,57 @@
-name: Haskell CI
+name: CI
 
 on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04
+    # permissions:
+    #   contents: read
     steps:
-    - uses: actions/checkout@v2
+      - name: Retrieve source code
+        uses: actions/checkout@v4
 
-    - uses: haskell-actions/setup@v2
-      with:
-        ghc-version: '8.8' # Resolves to the latest point release of GHC 8.8
-        cabal-version: '3.0.0.0' # Exact version of Cabal
+      - name: Setup runtime environment
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: 9.4.8
+          cabal-version: 3.10.3.0
 
-    - name: Install dependencies
-      run: cabal update
+      - name: Update package manager
+        run: cabal update
 
-    - name: Build project
-      run: cabal build --enable-documentation
+      - name: Install dependencies
+        run: cabal build --dependencies-only --enable-documentation
 
-    - name: Generate Haddock
-      run: cabal haddock --haddock-for-hackage --enable-documentation --haddock-hyperlink-source
+      - name: Build artifact
+        run: cabal haddock --haddock-options="--odir=build/" --haddock-for-hackage --enable-documentation --haddock-hyperlink-source
 
-    - name: Upload Haddock artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: haddock-docs
-        path: dist-newstyle/build/*/ghc-*/<your-project-name>-*/doc/html
+      - name: Upload Haddock artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build/
 
-    - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: dist-newstyle/build/*/ghc-*/<your-project-name>-*/doc/html
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # permissions:
+    #   contents: read
+    #   id-token: write
+    #   pages: write
+    steps:
+      - name: Retrieve artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: _site/
+
+      - name: Prepare deployment
+        uses: actions/upload-pages-artifact@v2
+
+      - name: Deploy artifact
+        id: deployment
+        uses: actions/deploy-pages@v2

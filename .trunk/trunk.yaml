@@ -1,0 +1,40 @@
+# This file controls the behavior of Trunk: https://docs.trunk.io/cli
+# To learn more about the format of this file, see https://docs.trunk.io/reference/trunk-yaml
+version: 0.1
+cli:
+  version: 1.22.2
+  sha256:
+    darwin_arm64: 094f5f17ecad8ad88951df4a481efbf2279f3ae23d013ca16750f58b929ed0f9
+    darwin_x86_64: 85a5a3096dda0993ccb545d659374ce8f748bda669b23ab3536171d648fb2aec
+    linux_arm64: eee0e571c2a54aa3be0e7cc6cf187ef91a17b713d608883631373bb60b08f106
+    linux_x86_64: 1b826495e94c58c749d756f20266c7a0c675965b32a2191159443aa42e7a3326
+    mingw_x86_64: 93d44d6482254f29580aa5571196a98b10134a65a40d2b120003a8aa6d949957
+    windows_x86_64: 0fc12f47f53cce3196f097fe8afa1cd0c182c47f9a07c1fb776603b0cbe64be3
+# Trunk provides extensibility via plugins. (https://docs.trunk.io/plugins)
+plugins:
+  sources:
+    - id: trunk
+      ref: v1.6.0
+      uri: https://github.com/trunk-io/plugins
+# Many linters and tools depend on runtimes - configure them here. (https://docs.trunk.io/runtimes)
+runtimes:
+  enabled:
+    - node@18.12.1
+    - python@3.10.8
+# This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
+lint:
+  enabled:
+    - actionlint@1.7.1
+    - checkov@3.2.139
+    - git-diff-check
+    - prettier@3.3.2
+    - trivy@0.52.2
+    - trufflehog@3.78.1
+    - yamllint@1.35.1
+actions:
+  disabled:
+    - trunk-announce
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
+  enabled:
+    - trunk-upgrade-available
