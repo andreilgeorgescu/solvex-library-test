@@ -1,0 +1,38 @@
+name: Haskell CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up GHC
+      uses: actions/setup-haskell@v1
+      with:
+        ghc-version: '8.10.4'
+        cabal-version: '3.2'
+
+    - name: Install dependencies
+      run: cabal update
+
+    - name: Build project
+      run: cabal build --enable-documentation
+
+    - name: Generate Haddock
+      run: cabal haddock --haddock-for-hackage --enable-documentation --haddock-hyperlink-source
+
+    - name: Upload Haddock artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: haddock-docs
+        path: dist-newstyle/build/*/ghc-*/<your-project-name>-*/doc/html
+
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: dist-newstyle/build/*/ghc-*/<your-project-name>-*/doc/html
