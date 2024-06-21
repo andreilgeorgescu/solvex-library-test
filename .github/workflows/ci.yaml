@@ -27,7 +27,7 @@ jobs:
         run: cabal haddock --haddock-options="--odir=build/" --haddock-for-hackage --enable-documentation --haddock-hyperlink-source
 
       - name: Upload Haddock artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build
           path: build/
@@ -44,7 +44,7 @@ jobs:
       pages: write
     steps:
       - name: Retrieve artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: _site/
